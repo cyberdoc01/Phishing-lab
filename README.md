@@ -1,3 +1,4 @@
+
 # Phishing Detection Lab
 
 ## Overview
@@ -15,7 +16,7 @@ The goal of this lab is to simulate a real-world email security workflow and dem
   - Subject lines
   - Email body content
   - Embedded links
-- Detects phishing indicators such as:
+nano README.md- Detects phishing indicators such as:
   - Suspicious keywords (e.g., "verify", "urgent", "login")
   - Potentially malicious URLs
 - Generates:
