@@ -1,0 +1,121 @@
+import imaplib
+import email
+import pandas as pd
+import re
+from multiprocessing import Pool, cpu_count
+from datetime import datetime
+import os
+
+# Load credentials from environment variables
+EMAIL = os.getenv("EMAIL")
+PASSWORD = os.getenv("APP_PASSWORD")
+IMAP_SERVER = os.getenv("IMAP_SERVER")
+
+
+# -------------------------------
+# Fetch emails from inbox
+# -------------------------------
+def fetch_emails(limit=100):
+    mail = imaplib.IMAP4_SSL(IMAP_SERVER)
+    mail.login(EMAIL, PASSWORD)
+    mail.select("inbox")
+
+    status, data = mail.search(None, "ALL")
+    mail_ids = data[0].split()
+
+    # Limit number of emails (important for performance)
+    mail_ids = mail_ids[-limit:]
+
+    emails = []
+
+    for i in mail_ids:
+        status, msg_data = mail.fetch(i, "(RFC822)")
+        for response_part in msg_data:
+            if isinstance(response_part, tuple):
+                msg = email.message_from_bytes(response_part[1])
+
+                body = ""
+                if msg.is_multipart():
+                    for part in msg.walk():
+                        if part.get_content_type() == "text/plain":
+                            body += part.get_payload(decode=True).decode(errors="ignore")
+                else:
+                    body = msg.get_payload(decode=True).decode(errors="ignore")
+
+                emails.append(body)
+
+    return emails
+
+
+# -------------------------------
+# Phishing detection logic
+# -------------------------------
+def extract_features(text):
+    text = str(text).lower()
+
+    return {
+        "has_url": int(bool(re.search(r"http[s]?://", text))),
+        "has_ip": int(bool(re.search(r"\d+\.\d+\.\d+\.\d+", text))),
+        "urgent": int(any(word in text for word in ["urgent", "verify", "account", "password", "click", "login"])),
+        "suspicious_domain": int(any(domain in text for domain in [".ru", ".cn", ".tk", ".xyz"]))
+    }
+
+
+def classify(features):
+    score = sum(features.values())
+    return "phishing" if score >= 2 else "safe"
+
+
+def process_email(text):
+    features = extract_features(text)
+    score = sum(features.values())
+    label = "PHISHING" if score >= 2 else "SAFE"
+
+    # Clean preview (first 100 chars only)
+    preview = text.strip().replace("\n", " ")[:100]
+
+    return {
+        "text": text,
+        "result": label,
+        "score": score,
+        "preview": preview
+    }
+
+
+# -------------------------------
+# Main pipeline
+# -------------------------------
+def main():
+    start_time = datetime.now()
+
+    print("Fetching emails from inbox...")
+    emails = fetch_emails()
+
+    print(f"Fetched {len(emails)} emails")
+
+    # Multi-core processing
+    with Pool(cpu_count()) as p:
+        results = p.map(process_email, emails)
+
+    df = pd.DataFrame(results)
+
+# Save clean CSV
+df.to_csv("results/output.csv", index=False)
+
+# Save readable report
+with open("results/report.txt", "w") as f:
+    for i, row in df.iterrows():
+        f.write(f"Email #{i+1}\n")
+        f.write(f"Result: {row['result']} (Score: {row['score']})\n")
+        f.write(f"Preview: {row['preview']}\n")
+        f.write("-" * 50 + "\n")
+
+    end_time = datetime.now()
+    duration = (end_time - start_time).seconds
+
+    print(f"Processed {len(df)} emails in {duration} seconds")
+    print("Results saved to results/output.csv")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,60 @@
+Email #1
+Sender: user1@example.com
+Subject: Subject 1
+Result: Phishing (Score: 63)
+Preview: This is a test email body 1.
+--------------------------------------------------
+Email #2
+Sender: user2@example.com
+Subject: Subject 2
+Result: Safe (Score: 44)
+Preview: This is a test email body 2.
+--------------------------------------------------
+Email #3
+Sender: user3@example.com
+Subject: Subject 3
+Result: Phishing (Score: 62)
+Preview: This is a test email body 3.
+--------------------------------------------------
+Email #4
+Sender: user4@example.com
+Subject: Subject 4
+Result: Safe (Score: 24)
+Preview: This is a test email body 4.
+--------------------------------------------------
+Email #5
+Sender: user5@example.com
+Subject: Subject 5
+Result: Safe (Score: 19)
+Preview: This is a test email body 5.
+--------------------------------------------------
+Email #6
+Sender: user6@example.com
+Subject: Subject 6
+Result: Phishing (Score: 84)
+Preview: This is a test email body 6.
+--------------------------------------------------
+Email #7
+Sender: user7@example.com
+Subject: Subject 7
+Result: Phishing (Score: 95)
+Preview: This is a test email body 7.
+--------------------------------------------------
+Email #8
+Sender: user8@example.com
+Subject: Subject 8
+Result: Safe (Score: 41)
+Preview: This is a test email body 8.
+--------------------------------------------------
+Email #9
+Sender: user9@example.com
+Subject: Subject 9
+Result: Phishing (Score: 89)
+Preview: This is a test email body 9.
+--------------------------------------------------
+Email #10
+Sender: user10@example.com
+Subject: Subject 10
+Result: Safe (Score: 49)
+Preview: This is a test email body 10.
+--------------------------------------------------
